@@ -58,12 +58,18 @@ function personal(kind) {
 }
 
 function showError(e) { alert(e?.message || 'Something went wrong. Please try again.'); }
+function signInMessage(error) {
+  if (error?.code === 'email_not_confirmed') return 'This email needs to be confirmed in Abby’s Supabase project before signing in.';
+  if (error?.code === 'invalid_credentials') return 'Email or password did not match. Check the account and password in Abby’s Supabase project.';
+  if (error?.code === 'over_request_rate_limit') return 'Too many attempts. Please wait a few minutes before trying again.';
+  return 'Could not sign in right now. Please try again or check Abby’s account in Supabase.';
+}
 function login() {
   shell(`<div class="auth-card"><div class="auth-icon">✺</div><h1>Abby’s App</h1><p>Your private space is ready when you are.</p><form id="login-form"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required/><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required/><button class="primary" type="submit">Sign in</button><p id="login-error" class="error" role="alert"></p></form></div>`);
   app.querySelector('#login-form').addEventListener('submit', async e => {
     e.preventDefault(); const form = e.currentTarget; const button = form.querySelector('button'); button.disabled = true;
     const { error } = await supabase.auth.signInWithPassword({ email: form.querySelector('#email').value, password: form.querySelector('#password').value });
-    if (error) { app.querySelector('#login-error').textContent = 'Could not sign in. Check your details and try again.'; button.disabled = false; }
+    if (error) { app.querySelector('#login-error').textContent = signInMessage(error); button.disabled = false; }
   });
 }
 function render() {
