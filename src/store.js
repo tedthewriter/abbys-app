@@ -7,7 +7,7 @@ export const supabase = configured ? createClient(url, key, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
 }) : null;
 
-export async function loadData() {
+async function readPrivateData() {
   const [progress, entries] = await Promise.all([
     supabase.from('progress').select('item_id, completed_at'),
     supabase.from('private_entries').select('id, kind, title, body, image_path, created_at').order('created_at', { ascending: false })
@@ -15,6 +15,18 @@ export async function loadData() {
   if (progress.error) throw progress.error;
   if (entries.error) throw entries.error;
   return { completed: new Set(progress.data.map(p => p.item_id)), entries: entries.data };
+}
+
+export async function loadData() {
+  try {
+    return await readPrivateData();
+  } catch (error) {
+    // A newly issued token can briefly arrive before the data API's clock catches up.
+    // Retry only this transient validation error; never bypass token verification.
+    if (!/JWT issued at future|JWTIssuedAtFuture/i.test(error?.message || '')) throw error;
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    return readPrivateData();
+  }
 }
 
 export async function setCompleted(itemId, completed) {
