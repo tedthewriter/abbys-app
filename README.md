@@ -12,10 +12,10 @@ Separate mobile-first support app for Abby. This repository contains no personal
 
 ## Local setup
 
-1. Create a **new** Supabase project in the selected organization. Run `supabase/migrations/20260929022030_initial_private_schema.sql` only there.
+1. The dedicated Supabase project is `eiohluebrqdrwdeinvoj`. Its private schema from `supabase/migrations/20260929022030_initial_private_schema.sql` has been applied and verified.
 2. Disable public self-signup in that project's Auth settings and configure its site URL / redirect URLs for the separate Pages URL. Create Abby’s own account there.
 3. Copy `.env.example` to `.env` and enter only that project's URL and publishable key. Never use a secret/service-role key in the browser. `.env` is ignored. The Pages workflow includes only this project's public URL and publishable key.
 4. `npm ci`, `npm run dev`, `npm run build`.
-5. For a project Pages repository named `REPO`, build with `PAGES_BASE=/REPO/ npm run build` and publish `dist`. The committed workflow can be added once the repository name is fixed.
+5. For this Pages repository, build with `PAGES_BASE=/abbys-app/ npm run build` and publish `dist`. The committed workflow builds and deploys on pushes to `main`.
 
 The source code must not contain the purchased workbooks, private notes, or personal images. The current workbook screens are structure and progress only, pending a reviewed content import.
