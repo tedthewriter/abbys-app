@@ -36,3 +36,5 @@ footer{color:#927d83}
 .list-card,.practice,.entry{border-color:#e9dfe2;background:#fffdfb}.list-number,.practice-number{color:#9a526d}.list-copy p{color:#897980}.check{border-color:#d9c8d0;color:#aa8d99}.check.checked{background:#873e5c;border-color:#873e5c}.expand{color:#a46b80}.away{color:#907782}
 .personal-intro{background:linear-gradient(135deg,#f8e9ed,#f4e8e0);color:#674858}.personal-art{color:#9d5670}.empty{border-color:#d4b9c5;color:#796672}.empty strong{color:#672c45}.entry-form{background:#f7edf0}label{color:#673b4e}input,textarea{border-color:#dcc9d2;color:#3b2933;background:#fffdfb}.primary{background:#762d49}.auth-card{background:linear-gradient(165deg,#f6e9ee,#fcf5ef);border:1px solid #e6d4da}.auth-card p{color:#755e69}.auth-icon{color:#873e5c}
 button:focus-visible,summary:focus-visible,input:focus-visible,textarea:focus-visible{outline-color:#a45d79}
+
+.skill-detail .practice-body{padding:24px;font-size:15px;line-height:1.75}.skill-detail .practice-body p:last-of-type{margin-bottom:22px}
