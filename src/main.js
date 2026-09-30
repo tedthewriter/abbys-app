@@ -7,8 +7,8 @@ const state = { page: 'home', completed: new Set(), entries: [], user: null, bus
 const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const icons = { cbt: '◒', love: '♡', skills: '✳', mindfulness: '◌', goals: '✧', ideals: '✦' };
 
-function shell(body, title = '') {
-  app.innerHTML = `<div class="app-shell"><header class="topbar"><button class="brand" data-page="home" aria-label="Go home"><span class="brand-mark">✧</span> Abby’s App</button>${state.user ? '<button class="small-link" id="signout">Sign out</button>' : ''}</header><main>${title ? `<div class="page-heading"><button class="back" data-page="home" aria-label="Back to home">←</button><h1>${title}</h1></div>` : ''}${body}</main><footer>A little support for the next step. <span>Take what helps, then return to your day.</span></footer></div>`;
+function shell(body, title = '', backPage = 'home') {
+  app.innerHTML = `<div class="app-shell"><header class="topbar"><button class="brand" data-page="home" aria-label="Go home"><span class="brand-mark">✧</span> Abby’s App</button>${state.user ? '<button class="small-link" id="signout">Sign out</button>' : ''}</header><main>${title ? `<div class="page-heading"><button class="back" data-page="${backPage}" aria-label="${backPage === 'skills' ? 'Back to Skills' : 'Back to home'}">←</button><h1>${title}</h1></div>` : ''}${body}</main><footer>A little support for the next step. <span>Take what helps, then return to your day.</span></footer></div>`;
   app.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click', () => { state.page = b.dataset.page; render(); window.scrollTo(0, 0); }));
   app.querySelector('#signout')?.addEventListener('click', async () => { await supabase.auth.signOut(); state.user = null; state.entries = []; state.completed = new Set(); state.page = 'home'; render(); });
 }
@@ -32,6 +32,17 @@ function workbook(kind) {
     catch (e) { showError(e); }
     finally { state.busy = false; }
   }));
+}
+
+function skillLibrary() {
+  const tones = ['lavender', 'blue', 'butter', 'rose', 'peach', 'sage'];
+  shell(`<p class="intro">Simple practices to try in everyday life. Choose one, then put the phone down.</p><div class="card-stack">${skills.map((item, i) => `<button class="nav-card ${tones[i % tones.length]}" data-page="${item.id}"><span class="nav-icon" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span><strong>${escapeHtml(item.title)}</strong><small>Open this practice</small></span><span class="arrow" aria-hidden="true">→</span></button>`).join('')}</div>`, 'Skills');
+}
+
+function skillPage(id) {
+  const item = skills.find(skill => skill.id === id);
+  if (!item) { state.page = 'skills'; skillLibrary(); return; }
+  shell(`<article class="practice skill-detail"><div class="practice-body">${item.body.split('\n\n').map(paragraph => `<p>${escapeHtml(paragraph)}</p>`).join('')}<span class="away">Try it away from the screen when you’re ready.</span></div></article><button class="primary" data-page="skills">Back to Skills</button>`, escapeHtml(item.title), 'skills');
 }
 
 function library(kind) {
@@ -84,7 +95,9 @@ function render() {
   if (!state.user) { login(); return; }
   if (state.page === 'home') home();
   else if (['cbt', 'love'].includes(state.page)) workbook(state.page);
-  else if (['skills', 'mindfulness'].includes(state.page)) library(state.page);
+  else if (state.page === 'skills') skillLibrary();
+  else if (state.page.startsWith('skill-')) skillPage(state.page);
+  else if (state.page === 'mindfulness') library(state.page);
   else personal(state.page);
 }
 async function boot() {
